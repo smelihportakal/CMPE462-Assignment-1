@@ -6,11 +6,11 @@ from lrdataset import getXy
 
 X, y = getXy()
 
-def plot_loss_convergence(histories):
+def plot_loss_convergence(histories, learning_rate_values):
     plt.figure(figsize=(10, 6))
     for i in range(len(histories)):
-        plt.plot(histories[i], label=f'{i}')
-    plt.title('Loss Convergence: GD vs. SGD')
+        plt.plot(histories[i], label=f'{learning_rate_values[i]}')
+    plt.title('Effect of Step Size')
     plt.xlabel('Iterations / Epochs')
     plt.ylabel('Loss')
     plt.legend()
@@ -28,4 +28,4 @@ for learning_rate_param in learning_rate_values:
     histories.append(model.loss_history)
     predictions = model.predict(X_test)
 
-plot_loss_convergence(histories)
+plot_loss_convergence(histories, learning_rate_values)

@@ -53,19 +53,16 @@ class LogisticRegression():
             self.weights -= self.learning_rate * gradient
             self.loss_history.append(self.compute_cost(X, y))
             self.training_time = time.time() - start_time
-            cost_dif = abs(self.compute_cost(X,y) - last_cost)
-            if cost_dif < 0.001:
-                pass
-            last_cost = self.compute_cost(X, y)
-
-            if i % 50 == 0:
-                print(f"Cost after iteration {i}: {self.compute_cost(X, y)}")
+            cost_dif = abs(self.window_average(10) - last_cost)
+            if cost_dif < 0.0005 and i > 10:
+                break
+            last_cost = self.window_average(10)
 
     def stochastic_gradient_descent(self, X, y):   
         start_time = time.time()
         n = X.shape[0]
         last_cost = 9999
-
+        np.random.seed(7)
         for t in range(self.num_iterations):
             i = np.random.randint(X.shape[0])  
             X_i = X[i, :].reshape(1, -1)
@@ -79,16 +76,19 @@ class LogisticRegression():
             self.weights += self.learning_rate * gradient
             self.loss_history.append(self.compute_cost(X, y))
             self.training_time = time.time() - start_time
-            cost_dif = abs(self.compute_cost(X,y) - last_cost)
-            if cost_dif < 0.001:
-                pass
-            last_cost = self.compute_cost(X, y)
-
-            if t % 100 == 0:
-                print(f"Cost after iteration {t}: {self.compute_cost(X, y)}")
+            cost_dif = abs(self.window_average(20) - last_cost)
+            if cost_dif < 0.0001  and t > 20:
+                break
+            last_cost = self.window_average(20)
 
     def predict(self, X):
         n_samples = X.shape[0]
         X = np.hstack((np.ones((n_samples, 1)), X))
         logits = np.dot(X, self.weights)
         return np.where(self.sigmoid(logits) >= 0.5, 1, -1)
+    
+    def window_average(self, window_size):
+        if len(self.loss_history) < window_size:
+            return np.mean(self.loss_history)
+        else:
+            return np.mean(self.loss_history[-window_size:])
